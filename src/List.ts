@@ -44,20 +44,33 @@ function NotificationMixin<TBase extends Constructor>(BaseClass: TBase) {
     getMessages() {
       return [...this._notifications.values()];
     }
+    clearNotifications() {
+      this._notifications.clear();
+    }
   };
 }
 
 // const eventMixin =
 class BaseClassList {
   #nextId = 1;
-  #items = [
-    new ListItem(1, "My christmas list"),
-    new ListItem(2, "A christmas list"),
-  ];
-  constructor() {}
+  #items = [];
+  constructor() {
+    const saved = this.#getSavedItems();
+    if (saved) {
+      this.#items.push(...saved);
+    }
+    console.log(this.#items);
+  }
   getAll() {
     return this.#items;
   }
+  #getSavedItems() {
+    const items: ListItem[] = JSON.parse(
+      localStorage.getItem("saved-xmas-list")
+    );
+    return items;
+  }
+
   #trimSpaces(word: string) {
     const trimmedWord = word.split(" ").filter(Boolean).join(" ");
     return trimmedWord;
@@ -94,12 +107,54 @@ class BaseClassList {
     this.#items.push(newItem);
 
     console.log(this.#items);
-    (this as any).trigger("updated");
+    instance.trigger("newitemadded");
+    this.#saveItems();
   }
+
+  #saveItems() {
+    localStorage.setItem("saved-xmas-list", JSON.stringify(this.#items));
+  }
+
+  editItem(id: number, newValue: string) {
+    const item = this.getItem(id);
+    let oldValue = item.name;
+    // let message = `The item ${item.name} has been changed to ${newValue}`;
+    item.name = newValue;
+    let message =
+      oldValue === newValue
+        ? `The item name ${oldValue} has remained unchanged`
+        : `The item ${item.name} has been changed to ${newValue}`;
+    (this as any).addMessage(message);
+    (this as any).trigger("modified", {
+      messages: (this as any).getMessages(),
+    });
+    this.#saveItems();
+  }
+
   getItem(id: number) {
     return this.#items.find((item) => {
       return item.id === id;
     });
+  }
+
+  deleteItem(id: number) {
+    console.log(id);
+    let deletedItem: ListItem;
+    for (let i = 0; i <= this.#items.length; i++) {
+      let currentItem = this.#items[i];
+      if (currentItem.id === id) {
+        deletedItem = this.#items.splice(i, 1)[0];
+        break;
+      }
+    }
+    let message = `${deletedItem.name} has been removed from the list`;
+    (this as any).addMessage(message);
+    (this as any).trigger("listitemdeleted", {
+      messages: (this as any).getMessages(),
+    });
+
+    console.log(deletedItem);
+    this.#saveItems();
   }
 }
 
