@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Christmas List</title>
+    <link rel="stylesheet" href="./css/styles.css" />
+  </head>
+  <body>
+    <div class="container">
+        <header>
+          <h1>My Christmas List</h1>
+        </header>
+        <main>
+          <form id="list-form" class="list-form">
+            <label>Enter an item</label>
+            <input name="list" id="christmas-list" type="text" />
+            <button>Add Item</button>
+          </form>
+          <div id="list" aria-live="polite"></div>
+          <div id="notifications"></div>
+        </main>
+        <script src="./dist/index.js" type="module"></script>
+          </body>
+    </div>
+</html>
